@@ -55,10 +55,10 @@ export default function Navigation() {
             {isSignedIn ? (
               <UserButton 
                 afterSignOutUrl="/"
-                signOutCallback={() => {
-                  // Force a page reload after sign out
-                  window.location.href = '/';
-                }}
+                // signOutCallback={() => {
+                //   // Force a page reload after sign out
+                //   window.location.href = '/';
+                // }}
               />
             ) : (
               <SignInButton mode="modal">
@@ -128,10 +128,10 @@ export default function Navigation() {
                 {isSignedIn ? (
                   <UserButton 
                     afterSignOutUrl="/"
-                    signOutCallback={() => {
-                      // Force a page reload after sign out
-                      window.location.href = '/';
-                    }}
+                    // signOutCallback={() => {
+                    //   // Force a page reload after sign out
+                    //   window.location.href = '/';
+                    // }}
                   />
                 ) : (
                   <SignInButton mode="modal">
