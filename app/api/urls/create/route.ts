@@ -96,19 +96,58 @@ export async function POST(request: NextRequest) {
       shortCode = generatedCode;
     }
 
-    // Create new URL record
+    // Create new URL record or update existing one
     console.log('Creating new URL record...');
-    const url = new Url({
-      originalUrl,
-      shortCode,
-      userId: userId || null,
-      clickCount: 0,
-      createdAt: new Date(),
-      isActive: true,
-    });
-
-    await url.save();
-    console.log('URL saved successfully');
+    
+    let url;
+    
+    if (userId) {
+      // For authenticated users, always create new document
+      url = new Url({
+        originalUrl,
+        shortCode,
+        userId,
+        clickCount: 0,
+        createdAt: new Date(),
+        isActive: true,
+      });
+      await url.save();
+      console.log('URL saved successfully for authenticated user');
+    } else {
+      // For anonymous users (userId = null), check if there's an existing document and overwrite it
+      const existingUrl = await Url.findOne({ userId: null, isActive: true });
+      
+      if (existingUrl) {
+        // Update existing anonymous document with new data
+        console.log('Updating existing anonymous URL record...');
+        url = await Url.findByIdAndUpdate(
+          existingUrl._id,
+          {
+            originalUrl,
+            shortCode,
+            userId: null,
+            clickCount: 0, // Reset click count for new URL
+            createdAt: new Date(),
+            lastAccessed: null, // Reset last accessed time
+            isActive: true,
+          },
+          { new: true } // Return the updated document
+        );
+        console.log('Anonymous URL updated successfully');
+      } else {
+        // Create new document for anonymous user
+        url = new Url({
+          originalUrl,
+          shortCode,
+          userId: null,
+          clickCount: 0,
+          createdAt: new Date(),
+          isActive: true,
+        });
+        await url.save();
+        console.log('URL saved successfully for anonymous user');
+      }
+    }
 
     return NextResponse.json({
       message: 'URL shortened successfully',
